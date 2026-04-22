@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>아이콘 PNG 생성기</title>
+<style>
+  body { font-family: sans-serif; padding: 24px; background: #f6efe5; color: #2b211b; }
+  button { padding: 12px 20px; font-size: 16px; border-radius: 8px; border: none; background: #dd6f3f; color: white; cursor: pointer; margin: 8px 4px; }
+  .preview { display: flex; gap: 16px; margin-top: 20px; flex-wrap: wrap; }
+  .preview div { text-align: center; }
+  canvas { border: 1px solid #ccc; background: white; max-width: 256px; height: auto; }
+  #status { margin-top: 12px; color: #6d5b4f; }
+</style>
+</head>
+<body>
+  <h1>앱 아이콘 PNG 생성기</h1>
+  <p>버튼을 누르면 미리보기가 그려지고, PNG 3개가 자동으로 다운로드됩니다.</p>
+  <button id="genBtn">PNG 생성 및 다운로드</button>
+  <div id="status"></div>
+
+  <div class="preview">
+    <div><h3>192×192</h3><canvas id="c192" width="192" height="192"></canvas></div>
+    <div><h3>512×512</h3><canvas id="c512" width="512" height="512"></canvas></div>
+    <div><h3>maskable 512×512</h3><canvas id="cmask" width="512" height="512"></canvas></div>
+  </div>
+
+<script>
+const SVG_TEXT = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#fffaf5"/>
+      <stop offset="100%" stop-color="#f0d8c2"/>
+    </radialGradient>
+    <radialGradient id="center" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#fffefc"/>
+      <stop offset="100%" stop-color="#f6dcca"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <g transform="translate(256 256)">
+    <circle r="180" fill="none" stroke="rgba(109,91,79,0.18)" stroke-dasharray="8 10"/>
+    <circle r="130" fill="none" stroke="rgba(109,91,79,0.14)" stroke-dasharray="8 10"/>
+    <g stroke-linecap="round">
+      <line x1="0" y1="0" x2="0" y2="-170" stroke="#2d8a66" stroke-opacity="0.6" stroke-width="6"/>
+      <line x1="0" y1="0" x2="162" y2="-53" stroke="#e3a93a" stroke-opacity="0.6" stroke-width="5"/>
+      <line x1="0" y1="0" x2="100" y2="138" stroke="#d67844" stroke-opacity="0.6" stroke-width="5"/>
+      <line x1="0" y1="0" x2="-100" y2="138" stroke="#c54f4f" stroke-opacity="0.6" stroke-width="5"/>
+      <line x1="0" y1="0" x2="-162" y2="-53" stroke="#2d8a66" stroke-opacity="0.6" stroke-width="6"/>
+    </g>
+    <g>
+      <circle cx="0" cy="-170" r="30" fill="#fff" stroke="#2d8a66" stroke-width="5"/>
+      <circle cx="162" cy="-53" r="30" fill="#fff" stroke="#e3a93a" stroke-width="5"/>
+      <circle cx="100" cy="138" r="30" fill="#fff" stroke="#d67844" stroke-width="5"/>
+      <circle cx="-100" cy="138" r="30" fill="#fff" stroke="#c54f4f" stroke-width="5"/>
+      <circle cx="-162" cy="-53" r="30" fill="#fff" stroke="#2d8a66" stroke-width="5"/>
+    </g>
+    <circle r="62" fill="url(#center)" stroke="#dd6f3f" stroke-width="7"/>
+    <circle r="22" fill="#dd6f3f"/>
+    <circle cx="-8" cy="-4" r="4" fill="#fff"/>
+    <circle cx="8" cy="-4" r="4" fill="#fff"/>
+    <path d="M -9 6 Q 0 14 9 6" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>`;
+
+function drawTo(canvas, maskable) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const encoded = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(SVG_TEXT);
+    img.onload = () => {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (maskable) {
+        ctx.fillStyle = '#f6efe5';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const pad = canvas.width * 0.1;
+        ctx.drawImage(img, pad, pad, canvas.width - pad * 2, canvas.height - pad * 2);
+      } else {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      }
+      resolve();
+    };
+    img.onerror = reject;
+    img.src = encoded;
+  });
+}
+
+function download(canvas, name) {
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => { URL.revokeObjectURL(url); resolve(); }, 100);
+    }, 'image/png');
+  });
+}
+
+const status = document.getElementById('status');
+
+document.getElementById('genBtn').addEventListener('click', async () => {
+  try {
+    status.textContent = '그리는 중...';
+    const c192 = document.getElementById('c192');
+    const c512 = document.getElementById('c512');
+    const cmask = document.getElementById('cmask');
+    await drawTo(c192, false);
+    await drawTo(c512, false);
+    await drawTo(cmask, true);
+    status.textContent = '다운로드 중... (브라우저가 여러 파일 저장을 묻는 창을 띄우면 모두 허용)';
+    await download(c192, 'icon-192.png');
+    await download(c512, 'icon-512.png');
+    await download(cmask, 'icon-maskable-512.png');
+    status.textContent = '완료! 다운로드 폴더에서 3개 파일을 icons/ 폴더로 옮기세요.';
+  } catch (e) {
+    status.textContent = '오류: ' + e.message;
+  }
+});
+
+window.addEventListener('load', async () => {
+  try {
+    await drawTo(document.getElementById('c192'), false);
+    await drawTo(document.getElementById('c512'), false);
+    await drawTo(document.getElementById('cmask'), true);
+  } catch {}
+});
+</script>
+</body>
+</html>

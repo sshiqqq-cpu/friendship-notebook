@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>교우관계 정리 노트</title>
+  <meta name="description" content="친구별 메모, 관계 온도, 최근 있었던 일을 한눈에 정리하는 노트">
+  <meta name="theme-color" content="#dd6f3f">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Family Relationship Notebook</p>
+        <h1>
+          <span id="ownerNameDisplay">우리 아이</span>의 교우관계를 차분하게 정리하는 작은 노트
+          <button id="editOwnerButton" class="button-link edit-owner" type="button" aria-label="이름 수정">수정</button>
+        </h1>
+        <p class="hero-text">
+          친구별 메모, 관계 온도, 최근 있었던 일, 걱정되는 신호를 한눈에 볼 수 있게 구성했습니다.
+          데이터는 이 브라우저 안에만 저장됩니다.
+        </p>
+      </div>
+      <div class="hero-panel">
+        <div class="metric-card">
+          <span>등록된 친구</span>
+          <strong id="friendCount">0명</strong>
+        </div>
+        <div class="metric-card">
+          <span>최근 기록</span>
+          <strong id="eventCount">0건</strong>
+        </div>
+        <div class="metric-card accent">
+          <span>관찰 포인트</span>
+          <strong id="watchCount">0건</strong>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="card card-graph">
+        <div class="section-head split">
+          <div>
+            <h2>교우 관계도</h2>
+            <p>가운데는 우리 아이, 바깥 원은 친구입니다. 가까운 관계일수록 중심에 더 가깝게 배치됩니다.</p>
+          </div>
+          <div class="legend">
+            <span><i class="legend-dot close"></i>가깝다</span>
+            <span><i class="legend-dot normal"></i>무난하다</span>
+            <span><i class="legend-dot distant"></i>조금 거리감</span>
+            <span><i class="legend-dot watch"></i>주의 필요</span>
+          </div>
+        </div>
+        <div class="relationship-layout">
+          <div id="relationshipGraph" class="relationship-graph empty-state">
+            친구를 등록하면 관계도가 표시됩니다.
+          </div>
+          <aside id="graphInsight" class="graph-insight">
+            <h3>관계도 읽는 법</h3>
+            <p>선을 누르면 해당 친구의 최근 상황과 관찰 포인트를 볼 수 있습니다.</p>
+            <ul class="insight-list">
+              <li>중심에 가까울수록 현재 정서적 거리가 가깝습니다.</li>
+              <li>선이 두꺼울수록 기록이 더 자주 남은 친구입니다.</li>
+              <li>걱정되는 기록이 있으면 요약 카드에 따로 표시됩니다.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
+      <section class="card card-form">
+        <div class="section-head">
+          <h2>친구 등록</h2>
+          <p>이름, 반, 특징, 부모 메모를 정리해 두세요.</p>
+        </div>
+        <form id="friendForm" class="stack">
+          <label>
+            이름
+            <input type="text" name="name" placeholder="예: 민서" required>
+          </label>
+          <label>
+            반 / 학년
+            <input type="text" name="group" placeholder="예: 3학년 2반">
+          </label>
+          <label>
+            관계 온도
+            <select name="status">
+              <option value="가깝다">가깝다</option>
+              <option value="무난하다">무난하다</option>
+              <option value="조금 거리감">조금 거리감</option>
+              <option value="주의 필요">주의 필요</option>
+            </select>
+          </label>
+          <label>
+            특징 태그
+            <input type="text" name="tags" placeholder="예: 같은 학원, 장난 좋아함, 리더형">
+          </label>
+          <label>
+            메모
+            <textarea name="note" rows="4" placeholder="아이에게 들은 이야기나 부모가 관찰한 내용을 적어주세요."></textarea>
+          </label>
+          <button type="submit" class="button-primary">친구 추가</button>
+        </form>
+      </section>
+
+      <section class="card card-form">
+        <div class="section-head">
+          <h2>상호작용 기록</h2>
+          <p>좋았던 일, 서운했던 일, 관찰이 필요한 상황을 날짜와 함께 남겨두세요.</p>
+        </div>
+        <form id="eventForm" class="stack">
+          <label>
+            날짜
+            <input type="date" name="date" required>
+          </label>
+          <label>
+            친구
+            <select name="friendId" id="eventFriendSelect" required></select>
+          </label>
+          <label>
+            유형
+            <select name="type">
+              <option value="positive">좋았던 일</option>
+              <option value="neutral">그냥 기록</option>
+              <option value="concern">걱정되는 일</option>
+            </select>
+          </label>
+          <label>
+            내용
+            <textarea name="detail" rows="4" placeholder="예: 쉬는 시간에 같이 놀았다고 함 / 단톡방에서 소외감을 느꼈다고 말함" required></textarea>
+          </label>
+          <button type="submit" class="button-primary">기록 저장</button>
+        </form>
+      </section>
+
+      <section class="card card-list">
+        <div class="section-head split">
+          <div>
+            <h2>친구 목록</h2>
+            <p>검색과 필터로 현재 관계를 빠르게 확인할 수 있습니다.</p>
+          </div>
+          <div class="filters">
+            <input id="searchInput" type="search" placeholder="이름 또는 태그 검색">
+            <select id="statusFilter">
+              <option value="all">전체 상태</option>
+              <option value="가깝다">가깝다</option>
+              <option value="무난하다">무난하다</option>
+              <option value="조금 거리감">조금 거리감</option>
+              <option value="주의 필요">주의 필요</option>
+            </select>
+          </div>
+        </div>
+        <div id="friendList" class="friend-list empty-state">
+          아직 등록된 친구가 없습니다.
+        </div>
+      </section>
+
+      <section class="card card-timeline">
+        <div class="section-head split">
+          <div>
+            <h2>최근 기록 타임라인</h2>
+            <p>시간순으로 흐름을 보며 반복되는 패턴을 확인하세요.</p>
+          </div>
+          <div class="data-actions">
+            <button id="seedDataButton" class="button-ghost" type="button">샘플 데이터</button>
+            <button id="exportDataButton" class="button-ghost" type="button">내보내기</button>
+            <button id="importDataButton" class="button-ghost" type="button">불러오기</button>
+            <input id="importFileInput" type="file" accept="application/json" hidden>
+            <button id="clearDataButton" class="button-ghost" type="button">전체 초기화</button>
+          </div>
+        </div>
+        <div id="timeline" class="timeline empty-state">
+          아직 기록이 없습니다.
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <template id="friendCardTemplate">
+    <article class="friend-card">
+      <div class="friend-card-top">
+        <div>
+          <h3 class="friend-name"></h3>
+          <p class="friend-group"></p>
+        </div>
+        <span class="status-badge"></span>
+      </div>
+      <p class="friend-note"></p>
+      <p class="friend-tags"></p>
+      <div class="friend-card-actions">
+        <small class="friend-meta"></small>
+        <div class="friend-controls">
+          <label class="inline-control">
+            <span>관계 온도</span>
+            <select class="friend-status-select">
+              <option value="가깝다">가깝다</option>
+              <option value="무난하다">무난하다</option>
+              <option value="조금 거리감">조금 거리감</option>
+              <option value="주의 필요">주의 필요</option>
+            </select>
+          </label>
+          <button type="button" class="button-link delete-friend">삭제</button>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <template id="timelineItemTemplate">
+    <article class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-head">
+          <strong class="timeline-friend"></strong>
+          <span class="timeline-date"></span>
+        </div>
+        <span class="timeline-type"></span>
+        <p class="timeline-detail"></p>
+      </div>
+    </article>
+  </template>
+
+  <div id="ownerDialog" class="dialog-backdrop" hidden>
+    <div class="dialog">
+      <h2 id="ownerDialogTitle">이름을 알려주세요</h2>
+      <p id="ownerDialogDesc">관계도 가운데와 안내 문구에 이 이름이 표시됩니다. 언제든 수정할 수 있습니다.</p>
+      <form id="ownerForm" class="stack">
+        <label>
+          이름
+          <input type="text" id="ownerNameInput" name="ownerName" placeholder="예: 다연" maxlength="12" required>
+        </label>
+        <div class="dialog-actions">
+          <button type="button" id="ownerCancelButton" class="button-ghost" hidden>취소</button>
+          <button type="submit" class="button-primary">저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
