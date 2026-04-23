@@ -402,11 +402,11 @@ function renderRelationshipGraph() {
 }
 
 function buildRelationshipSvg() {
-  const width = 960;
-  const height = 580;
+  const width = 900;
+  const height = 900;
   const centerX = width / 2;
   const centerY = height / 2;
-  const outerRadius = Math.min(width, height) * 0.35;
+  const outerRadius = width * 0.35;
 
   const nodes = state.friends.map((friend, index) => {
     const angle = (Math.PI * 2 * index) / Math.max(state.friends.length, 1) - Math.PI / 2;
@@ -417,14 +417,14 @@ function buildRelationshipSvg() {
     const lineColor = statusColor(friend.status);
     const strokeWidth = 2 + Math.min(stats.total, 4);
     const concernMark = stats.concern > 0
-      ? `<circle cx="${x + 28}" cy="${y - 24}" r="10" fill="#c54f4f"></circle><text x="${x + 28}" y="${y - 20}" text-anchor="middle" font-size="12" fill="#fff">${stats.concern}</text>`
+      ? `<circle cx="${x + 34}" cy="${y - 30}" r="14" fill="#c54f4f"></circle><text x="${x + 34}" y="${y - 24}" text-anchor="middle" font-size="16" fill="#fff" font-weight="700">${stats.concern}</text>`
       : "";
 
     return `
       <g class="friend-node" data-friend-id="${friend.id}" style="cursor:pointer">
-        <line x1="${centerX}" y1="${centerY}" x2="${x}" y2="${y}" stroke="${lineColor}" stroke-opacity="0.55" stroke-width="${strokeWidth}" stroke-linecap="round"></line>
-        <circle cx="${x}" cy="${y}" r="30" fill="white" stroke="${lineColor}" stroke-width="4"></circle>
-        <text x="${x}" y="${y + 6}" text-anchor="middle" font-size="14" font-weight="700" fill="#2b211b">${escapeHtml(friend.name)}</text>
+        <line x1="${centerX}" y1="${centerY}" x2="${x}" y2="${y}" stroke="${lineColor}" stroke-opacity="0.6" stroke-width="${strokeWidth + 1}" stroke-linecap="round"></line>
+        <circle cx="${x}" cy="${y}" r="38" fill="white" stroke="${lineColor}" stroke-width="5"></circle>
+        <text x="${x}" y="${y + 9}" text-anchor="middle" font-size="26" font-weight="700" fill="#2b211b">${escapeHtml(friend.name)}</text>
         ${concernMark}
       </g>
     `;
@@ -443,9 +443,9 @@ function buildRelationshipSvg() {
       <circle cx="${centerX}" cy="${centerY}" r="${outerRadius * 0.95}" fill="none" stroke="rgba(214, 120, 68, 0.22)" stroke-dasharray="6 10"></circle>
       <circle cx="${centerX}" cy="${centerY}" r="${outerRadius * 1.18}" fill="none" stroke="rgba(197, 79, 79, 0.28)" stroke-dasharray="4 8"></circle>
       ${nodes}
-      <circle cx="${centerX}" cy="${centerY}" r="52" fill="url(#centerGlow)" stroke="#dd6f3f" stroke-width="5"></circle>
-      <text x="${centerX}" y="${centerY + 6}" text-anchor="middle" font-size="22" font-weight="700" fill="#2b211b">${escapeHtml(ownerName || "우리 아이")}</text>
-      <text x="${centerX}" y="${centerY + 28}" text-anchor="middle" font-size="13" fill="#6d5b4f">관계 중심</text>
+      <circle cx="${centerX}" cy="${centerY}" r="72" fill="url(#centerGlow)" stroke="#dd6f3f" stroke-width="6"></circle>
+      <text x="${centerX}" y="${centerY + 6}" text-anchor="middle" font-size="32" font-weight="700" fill="#2b211b">${escapeHtml(ownerName || "우리 아이")}</text>
+      <text x="${centerX}" y="${centerY + 34}" text-anchor="middle" font-size="18" fill="#6d5b4f">관계 중심</text>
     </svg>
   `;
 }
