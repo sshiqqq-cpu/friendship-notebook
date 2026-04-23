@@ -41,11 +41,53 @@ document.addEventListener("DOMContentLoaded", () => {
   eventForm.date.value = new Date().toISOString().slice(0, 10);
   bindEvents();
   bindOwnerDialog();
+  bindBottomNav();
   if (!ownerName) {
     openOwnerDialog(true);
   }
   render();
 });
+
+function bindBottomNav() {
+  const items = Array.from(document.querySelectorAll(".bottom-nav-item"));
+  const sections = items
+    .map((item) => ({ id: item.dataset.target, el: document.getElementById(item.dataset.target) }))
+    .filter((s) => s.el);
+
+  if (sections.length === 0) return;
+
+  let lockUntil = 0;
+
+  const setActive = (id) => {
+    items.forEach((item) => {
+      item.classList.toggle("active", item.dataset.target === id);
+    });
+  };
+
+  const updateByScroll = () => {
+    if (Date.now() < lockUntil) return;
+    const triggerY = window.scrollY + window.innerHeight * 0.25;
+    let current = sections[0].id;
+    for (const { id, el } of sections) {
+      if (el.offsetTop <= triggerY) {
+        current = id;
+      }
+    }
+    setActive(current);
+  };
+
+  window.addEventListener("scroll", updateByScroll, { passive: true });
+  window.addEventListener("resize", updateByScroll);
+
+  items.forEach((item) => {
+    item.addEventListener("click", () => {
+      setActive(item.dataset.target);
+      lockUntil = Date.now() + 900;
+    });
+  });
+
+  updateByScroll();
+}
 
 function bindOwnerDialog() {
   editOwnerButton.addEventListener("click", () => openOwnerDialog(false));

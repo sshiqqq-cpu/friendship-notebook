@@ -45,7 +45,7 @@
     </header>
 
     <main class="layout">
-      <section class="card card-graph">
+      <section id="section-graph" class="card card-graph">
         <div class="section-head split">
           <div>
             <h2>교우 관계도</h2>
@@ -74,7 +74,7 @@
         </div>
       </section>
 
-      <section class="card card-form">
+      <section id="section-add-friend" class="card card-form">
         <div class="section-head">
           <h2>친구 등록</h2>
           <p>이름, 반, 특징, 부모 메모를 정리해 두세요.</p>
@@ -109,7 +109,7 @@
         </form>
       </section>
 
-      <section class="card card-form">
+      <section id="section-add-event" class="card card-form">
         <div class="section-head">
           <h2>상호작용 기록</h2>
           <p>좋았던 일, 서운했던 일, 관찰이 필요한 상황을 날짜와 함께 남겨두세요.</p>
@@ -139,7 +139,7 @@
         </form>
       </section>
 
-      <section class="card card-list">
+      <section id="section-friends" class="card card-list">
         <div class="section-head split">
           <div>
             <h2>친구 목록</h2>
@@ -161,7 +161,7 @@
         </div>
       </section>
 
-      <section class="card card-timeline">
+      <section id="section-timeline" class="card card-timeline">
         <div class="section-head split">
           <div>
             <h2>최근 기록 타임라인</h2>
@@ -224,6 +224,29 @@
       </div>
     </article>
   </template>
+
+  <nav class="bottom-nav" aria-label="섹션 이동">
+    <a href="#section-graph" class="bottom-nav-item" data-target="section-graph">
+      <span class="bottom-nav-icon" aria-hidden="true">🧭</span>
+      <span class="bottom-nav-label">관계도</span>
+    </a>
+    <a href="#section-add-friend" class="bottom-nav-item" data-target="section-add-friend">
+      <span class="bottom-nav-icon" aria-hidden="true">👤</span>
+      <span class="bottom-nav-label">친구 등록</span>
+    </a>
+    <a href="#section-add-event" class="bottom-nav-item" data-target="section-add-event">
+      <span class="bottom-nav-icon" aria-hidden="true">📝</span>
+      <span class="bottom-nav-label">기록</span>
+    </a>
+    <a href="#section-friends" class="bottom-nav-item" data-target="section-friends">
+      <span class="bottom-nav-icon" aria-hidden="true">👥</span>
+      <span class="bottom-nav-label">친구 목록</span>
+    </a>
+    <a href="#section-timeline" class="bottom-nav-item" data-target="section-timeline">
+      <span class="bottom-nav-icon" aria-hidden="true">⏱</span>
+      <span class="bottom-nav-label">타임라인</span>
+    </a>
+  </nav>
 
   <div id="ownerDialog" class="dialog-backdrop" hidden>
     <div class="dialog">
